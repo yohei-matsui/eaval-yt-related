@@ -30,6 +30,7 @@ class TriggerRequest(BaseModel):
 
 
 @app.get("/")
+@app.head("/")
 def health():
     return {"status": "ok"}
 
