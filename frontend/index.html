@@ -146,6 +146,11 @@ details[open] .toggle{background:#ff5555;border-color:#ff5555;color:#fff;transfo
     <div class="sec-header-label"><span class="sec-step-tag">Step 1</span> 分析する動画を指定</div>
   </div>
   <div class="form-group">
+    <label class="form-label" for="gh-token">GitHub Personal Access Token <span style="font-size:.75rem;color:#aaa;font-weight:400">（初回のみ）</span></label>
+    <input id="gh-token" class="form-input" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off"/>
+    <div style="font-size:.72rem;color:#aaa;margin-top:.3rem">入力値はブラウザのみに保存されます。<a href="https://github.com/settings/tokens/new" target="_blank" style="color:#ff6b6b">トークンを取得 →</a>（scopeは repo + workflow）</div>
+  </div>
+  <div class="form-group">
     <label class="form-label" for="url-input">YouTube URL</label>
     <input id="url-input" class="form-input" type="url" placeholder="https://www.youtube.com/watch?v=..."/>
   </div>
@@ -244,7 +249,17 @@ document.getElementById('logo-img').src = 'data:image/png;base64,' + LOGO_B64;
 // ── GitHub Actions 設定 ───────────────────────────────────────────────────
 const GITHUB_OWNER   = 'yohei-matsui';
 const GITHUB_REPO    = 'eaval-yt-related';
-const GITHUB_TOKEN   = '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';
+// トークンはブラウザの入力欄から取得（localStorageにキャッシュ）
+function getToken() {
+  const inp = document.getElementById('gh-token').value.trim();
+  if (inp) { localStorage.setItem('gh_token', inp); return inp; }
+  return localStorage.getItem('gh_token') || '';
+}
+// 保存済みトークンがあれば入力欄に復元
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('gh_token');
+  if (saved) document.getElementById('gh-token').value = saved;
+});
 const WORKFLOW_FILE  = 'scrape.yml';
 
 // ── スライダー ────────────────────────────────────────────────────────────
@@ -274,6 +289,9 @@ document.getElementById('start-btn').addEventListener('click', async () => {
     const runId = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 
     // GitHub Actions ワークフローを起動
+    const GITHUB_TOKEN = getToken();
+    if (!GITHUB_TOKEN) { showError('GitHub Personal Access Token を入力してください'); hide('spinner'); document.getElementById('start-btn').disabled = false; return; }
+
     const triggerRes = await fetch(
       `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`,
       {
