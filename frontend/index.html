@@ -447,7 +447,7 @@ document.getElementById('start-btn').addEventListener('click', async () => {
     // 結果JSONをポーリング（最大5分）
     const resultUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/results/${runId}.json`;
     let data = null;
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 96; i++) {
       await new Promise(r => setTimeout(r, 5000));
       try {
         const r = await fetch(resultUrl + '?t=' + Date.now());
@@ -461,7 +461,7 @@ document.getElementById('start-btn').addEventListener('click', async () => {
         // まだファイルが存在しない → 待機継続
       }
     }
-    if (!data || data.status !== 'done') throw new Error('タイムアウト：GitHub Actionsが完了しませんでした');
+    if (!data || data.status !== 'done') throw new Error('タイムアウト：時間がかかりすぎています。もう一度お試しください');
 
     gData = data;
     renderResults(gData);
