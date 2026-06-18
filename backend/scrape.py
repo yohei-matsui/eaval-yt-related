@@ -37,6 +37,16 @@ def scrape(url: str, max_count: int = 10) -> dict:
             page.wait_for_selector("ytd-watch-next-secondary-results-renderer", timeout=30000)
             page.wait_for_timeout(3000)
 
+            # 必要件数に達するまでスクロールして追加読み込み（最大5回）
+            for _ in range(5):
+                current = page.eval_on_selector_count(
+                    "ytd-watch-next-secondary-results-renderer yt-lockup-view-model"
+                )
+                if current >= max_count:
+                    break
+                page.evaluate("window.scrollBy(0, 1200)")
+                page.wait_for_timeout(1500)
+
             source_meta: dict = page.evaluate("""() => {
                 const title = document.querySelector('h1.ytd-watch-metadata yt-formatted-string')?.innerText
                     || document.title.replace(' - YouTube', '');
