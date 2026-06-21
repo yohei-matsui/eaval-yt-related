@@ -34,8 +34,13 @@ def scrape(url: str, max_count: int = 10) -> dict:
         page = context.new_page()
         try:
             page.goto(url, wait_until="domcontentloaded", timeout=60000)
-            page.wait_for_selector("ytd-watch-next-secondary-results-renderer", timeout=30000)
-            page.wait_for_timeout(3000)
+            # セレクターが見つからない場合に備えて複数候補で待機
+            try:
+                page.wait_for_selector("ytd-watch-next-secondary-results-renderer", timeout=20000)
+            except Exception:
+                # フォールバック: 動画プレーヤーが表示されるまで待つ
+                page.wait_for_selector("ytd-app", timeout=20000)
+            page.wait_for_timeout(5000)
 
             # 必要件数に達するまでスクロールして追加読み込み（最大5回）
             for _ in range(5):
