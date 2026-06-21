@@ -39,9 +39,9 @@ def scrape(url: str, max_count: int = 10) -> dict:
 
             # 必要件数に達するまでスクロールして追加読み込み（最大5回）
             for _ in range(5):
-                current = page.eval_on_selector_count(
+                current = page.locator(
                     "ytd-watch-next-secondary-results-renderer yt-lockup-view-model"
-                )
+                ).count()
                 if current >= max_count:
                     break
                 page.evaluate("window.scrollBy(0, 1200)")
