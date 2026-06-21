@@ -1,0 +1,4 @@
+{
+  "status": "error",
+  "error": "タイムアウト: Page.wait_for_selector: Timeout 30000ms exceeded.\nCall log:\nwaiting for locator(\"ytd-watch-next-secondary-results-renderer\") to be visible\n"
+}
